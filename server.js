@@ -14,7 +14,7 @@ const clientSecret = process.env.AUTH0_CLIENT_SECRET;
 const managementAPIaudience = process.env.AUTH0_MGMT_AUDIENCE;
 
 const corsOptions = {
-  origin: "https://charlie-api-d3e4b8d942b1.herokuapp.com",
+  origin: "https://charlie-api-d3e4b8d942b1.herokuapp.com/",
 };
 
 app.use(cors(corsOptions));
