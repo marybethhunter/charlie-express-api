@@ -32,7 +32,7 @@ const checkJwt = jwt({
   algorithms: ["RS256"],
 });
 
-app.get("/api/public", function (req, res) {
+app.get("/api/public", async (req, res) => {
   let options = {
     method: "POST",
     url: `${issuerBaseUrl}/oauth/token`,
