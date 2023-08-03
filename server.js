@@ -5,7 +5,7 @@ const cors = require("cors");
 require("dotenv").config();
 const { expressjwt: jwt } = require("express-jwt");
 const jwksRsa = require("jwks-rsa");
-const axios = require('axios').default;
+const axios = require("axios").default;
 
 const issuerBaseUrl = process.env.AUTH0_ISSUER_BASE_URL;
 const audience = process.env.AUTH0_AUDIENCE;
@@ -238,7 +238,6 @@ app.get("/api/private", checkJwt, async (req, res) => {
 //     //     "Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this.",
 //     // });
 //   }
-);
 
 app.use(function (err, req, res, next) {
   console.error(err.stack);
