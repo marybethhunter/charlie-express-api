@@ -16,25 +16,18 @@ const corsOptions = {
   origin: "http://localhost:3000",
 };
 
-// const checkScopes = requiredScopes("read:actions read:clients read:triggers");
-
 app.use(cors(corsOptions));
 
-// const checkJwt = jwt({
-//   secret: jwksRsa.expressJwtSecret({
-//     cache: true,
-//     rateLimit: true,
-//     jwksRequestsPerMinute: 5,
-//     jwksUri: `${issuerBaseUrl}/.well-known/jwks.json`,
-//   }),
-//   audience: audience,
-//   issuer: `${issuerBaseUrl}/`,
-//   algorithms: ["RS256"],
-// });
-
-const checkJwt = auth({
+const checkJwt = jwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `${issuerBaseUrl}/.well-known/jwks.json`,
+  }),
   audience: audience,
   issuer: `${issuerBaseUrl}/`,
+  algorithms: ["RS256"],
 });
 
 app.get("/api/public", function (req, res) {
