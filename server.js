@@ -133,7 +133,7 @@ app.get("/api/public", function (req, res) {
   });
 });
 
-app.get("/api/private", checkJwt function (req, res) {
+app.get("/api/private", checkJwt, function (req, res) {
   // let options = {
   //   method: "POST",
   //   url: `${issuerBaseUrl}/oauth/token`,
