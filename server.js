@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { auth, requiredScopes } = require("express-oauth2-jwt-bearer");
+const { auth } = require("express-oauth2-jwt-bearer");
 const cors = require("cors");
 require("dotenv").config();
 const { expressjwt: jwt } = require("express-jwt");
@@ -16,20 +16,25 @@ const corsOptions = {
   origin: "http://localhost:3000",
 };
 
-const checkScopes = requiredScopes("read:actions read:clients read:triggers");
+// const checkScopes = requiredScopes("read:actions read:clients read:triggers");
 
 app.use(cors(corsOptions));
 
-const checkJwt = jwt({
-  secret: jwksRsa.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: `${issuerBaseUrl}/.well-known/jwks.json`,
-  }),
+// const checkJwt = jwt({
+//   secret: jwksRsa.expressJwtSecret({
+//     cache: true,
+//     rateLimit: true,
+//     jwksRequestsPerMinute: 5,
+//     jwksUri: `${issuerBaseUrl}/.well-known/jwks.json`,
+//   }),
+//   audience: audience,
+//   issuer: `${issuerBaseUrl}/`,
+//   algorithms: ["RS256"],
+// });
+
+const checkJwt = auth({
   audience: audience,
   issuer: `${issuerBaseUrl}/`,
-  algorithms: ["RS256"],
 });
 
 app.get("/api/public", function (req, res) {
@@ -237,7 +242,7 @@ app.get("/api/private", checkJwt, function (req, res) {
 app.get(
   "/api/private-scoped",
   checkJwt,
-  requiredScopes("read:actions read:clients read:triggers"),
+  // requiredScopes("read:actions read:clients read:triggers"),
   async (req, res) => {
     let options = {
       method: "POST",
