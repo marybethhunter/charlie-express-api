@@ -5,6 +5,7 @@ const cors = require("cors");
 require("dotenv").config();
 const { expressjwt: jwt } = require("express-jwt");
 const jwksRsa = require("jwks-rsa");
+const axios = require('axios').default;
 
 const issuerBaseUrl = process.env.AUTH0_ISSUER_BASE_URL;
 const audience = process.env.AUTH0_AUDIENCE;
@@ -13,7 +14,7 @@ const clientSecret = process.env.AUTH0_CLIENT_SECRET;
 const managementAPIaudience = process.env.AUTH0_MGMT_AUDIENCE;
 
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "https://charlie-api-d3e4b8d942b1.herokuapp.com",
 };
 
 app.use(cors(corsOptions));
@@ -31,311 +32,212 @@ const checkJwt = jwt({
 });
 
 app.get("/api/public", function (req, res) {
-  // let options = {
-  //   method: "POST",
-  //   url: `${issuerBaseUrl}/oauth/token`,
-  //   headers: { "content-type": "application/json" },
-  //   data: {
-  //     grant_type: "client_credentials",
-  //     client_id: clientID,
-  //     client_secret: clientSecret,
-  //     audience: managementAPIaudience,
-  //   },
-  // };
-
-  // const managementAPIToken = await axios.request(options).then((res) => {
-  //   return `Bearer ${res.data.access_token}`;
-  // });
-
-  // const getAllActions = await axios
-  //   .get(`${managementAPIaudience}actions/actions`, {
-  //     headers: { authorization: managementAPIToken },
-  //   })
-  //   .then((res) => {
-  //     return res.data;
-  //   });
-
-  // const getAllClients = await axios
-  //   .get(`${managementAPIaudience}clients`, {
-  //     headers: { authorization: managementAPIToken },
-  //   })
-  //   .then((res) => {
-  //     return res.data;
-  //   });
-
-  // let finalList = [];
-  // let noActionMessage = {
-  //   message: "This application has no associated actions.",
-  // };
-
-  // const match = (clients, actions) => {
-  //   clients.forEach((client) => {
-  //     const oneSingleClient = {
-  //       name: client.name,
-  //       id: client.client_id,
-  //       actions: [],
-  //     };
-  //     finalList.push(oneSingleClient);
-  //   });
-
-  //   const actionsArray = Object.values(actions);
-
-  //   const finalActionsArray = actionsArray.flat();
-
-  //   finalList.forEach((client) => {
-  //     const matchingActions = finalActionsArray.filter((action) =>
-  //       action.code?.includes(client.id)
-  //     );
-  //     if (
-  //       matchingActions.length > 0 &&
-  //       req.auth.permissions.includes("read:triggers")
-  //     ) {
-  //       matchingActions.forEach((action) => {
-  //         client.actions.push({
-  //           id: action.id,
-  //           name: action.name,
-  //           trigger: action.supported_triggers[0].id,
-  //         });
-  //       });
-  //     }
-  //     if (
-  //       matchingActions.length > 0 &&
-  //       !req.auth.permissions.includes("read:triggers")
-  //     ) {
-  //       matchingActions.forEach((action) => {
-  //         client.actions.push({
-  //           id: action.id,
-  //           name: action.name,
-  //         });
-  //       });
-  //     } else {
-  //       client.actions.push(noActionMessage);
-  //     }
-  //   });
-  // };
-
-  // match(getAllClients, getAllActions);
-
-  // const removeLast = (array) => {
-  //   array.length--;
-  //   return array;
-  // };
-
-  // removeLast(finalList);
-
-  // res.json(finalList);
-
   res.json({
     message:
       "Hello from a public endpoint! You don't need to be authenticated to see this.",
   });
 });
 
-app.get("/api/private", checkJwt, function (req, res) {
-  // let options = {
-  //   method: "POST",
-  //   url: `${issuerBaseUrl}/oauth/token`,
-  //   headers: { "content-type": "application/json" },
-  //   data: {
-  //     grant_type: "client_credentials",
-  //     client_id: clientID,
-  //     client_secret: clientSecret,
-  //     audience: managementAPIaudience,
-  //   },
-  // };
+app.get("/api/private", checkJwt, async (req, res) => {
+  let options = {
+    method: "POST",
+    url: `${issuerBaseUrl}/oauth/token`,
+    headers: { "content-type": "application/json" },
+    data: {
+      grant_type: "client_credentials",
+      client_id: clientID,
+      client_secret: clientSecret,
+      audience: managementAPIaudience,
+    },
+  };
 
-  // const managementAPIToken = await axios.request(options).then((res) => {
-  //   return `Bearer ${res.data.access_token}`;
-  // });
-
-  // const getAllActions = await axios
-  //   .get(`${managementAPIaudience}actions/actions`, {
-  //     headers: { authorization: managementAPIToken },
-  //   })
-  //   .then((res) => {
-  //     return res.data;
-  //   });
-
-  // const getAllClients = await axios
-  //   .get(`${managementAPIaudience}clients`, {
-  //     headers: { authorization: managementAPIToken },
-  //   })
-  //   .then((res) => {
-  //     return res.data;
-  //   });
-
-  // let finalList = [];
-  // let noActionMessage = {
-  //   message: "This application has no associated actions.",
-  // };
-
-  // const match = (clients, actions) => {
-  //   clients.forEach((client) => {
-  //     const oneSingleClient = {
-  //       name: client.name,
-  //       id: client.client_id,
-  //       actions: [],
-  //     };
-  //     finalList.push(oneSingleClient);
-  //   });
-
-  //   const actionsArray = Object.values(actions);
-
-  //   const finalActionsArray = actionsArray.flat();
-
-  //   finalList.forEach((client) => {
-  //     const matchingActions = finalActionsArray.filter((action) =>
-  //       action.code?.includes(client.id)
-  //     );
-  //     if (
-  //       matchingActions.length > 0 &&
-  //       req.auth.permissions.includes("read:triggers")
-  //     ) {
-  //       matchingActions.forEach((action) => {
-  //         client.actions.push({
-  //           id: action.id,
-  //           name: action.name,
-  //           trigger: action.supported_triggers[0].id,
-  //         });
-  //       });
-  //     }
-  //     if (
-  //       matchingActions.length > 0 &&
-  //       !req.auth.permissions.includes("read:triggers")
-  //     ) {
-  //       matchingActions.forEach((action) => {
-  //         client.actions.push({
-  //           id: action.id,
-  //           name: action.name,
-  //         });
-  //       });
-  //     } else {
-  //       client.actions.push(noActionMessage);
-  //     }
-  //   });
-  // };
-
-  // match(getAllClients, getAllActions);
-
-  // const removeLast = (array) => {
-  //   array.length--;
-  //   return array;
-  // };
-
-  // removeLast(finalList);
-
-  // res.json(finalList);
-
-  res.json({
-    message:
-      "Hello from a private endpoint! You need to be authenticated to see this.",
+  const managementAPIToken = await axios.request(options).then((res) => {
+    return `Bearer ${res.data.access_token}`;
   });
-});
 
-app.get(
-  "/api/private-scoped",
-  checkJwt,
-  // requiredScopes("read:actions read:clients read:triggers"),
-  async (req, res) => {
-    let options = {
-      method: "POST",
-      url: `${issuerBaseUrl}/oauth/token`,
-      headers: { "content-type": "application/json" },
-      data: {
-        grant_type: "client_credentials",
-        client_id: clientID,
-        client_secret: clientSecret,
-        audience: managementAPIaudience,
-      },
-    };
-
-    const managementAPIToken = await axios.request(options).then((res) => {
-      return `Bearer ${res.data.access_token}`;
+  const getAllActions = await axios
+    .get(`${managementAPIaudience}actions/actions`, {
+      headers: { authorization: managementAPIToken },
+    })
+    .then((res) => {
+      return res.data;
     });
 
-    const getAllActions = await axios
-      .get(`${managementAPIaudience}actions/actions`, {
-        headers: { authorization: managementAPIToken },
-      })
-      .then((res) => {
-        return res.data;
-      });
+  const getAllClients = await axios
+    .get(`${managementAPIaudience}clients`, {
+      headers: { authorization: managementAPIToken },
+    })
+    .then((res) => {
+      return res.data;
+    });
 
-    const getAllClients = await axios
-      .get(`${managementAPIaudience}clients`, {
-        headers: { authorization: managementAPIToken },
-      })
-      .then((res) => {
-        return res.data;
-      });
+  let finalList = [];
+  let noActionMessage = {
+    message: "This application has no associated actions.",
+  };
 
-    let finalList = [];
-    let noActionMessage = {
-      message: "This application has no associated actions.",
-    };
+  const match = (clients, actions) => {
+    clients.forEach((client) => {
+      const oneSingleClient = {
+        name: client.name,
+        id: client.client_id,
+        actions: [],
+      };
+      finalList.push(oneSingleClient);
+    });
 
-    const match = (clients, actions) => {
-      clients.forEach((client) => {
-        const oneSingleClient = {
-          name: client.name,
-          id: client.client_id,
-          actions: [],
-        };
-        finalList.push(oneSingleClient);
-      });
+    const actionsArray = Object.values(actions);
 
-      const actionsArray = Object.values(actions);
+    const finalActionsArray = actionsArray.flat();
 
-      const finalActionsArray = actionsArray.flat();
-
-      finalList.forEach((client) => {
-        const matchingActions = finalActionsArray.filter((action) =>
-          action.code?.includes(client.id)
-        );
-        if (
-          matchingActions.length > 0 &&
-          req.auth.permissions.includes("read:triggers")
-        ) {
-          matchingActions.forEach((action) => {
-            client.actions.push({
-              id: action.id,
-              name: action.name,
-              trigger: action.supported_triggers[0].id,
-            });
+    finalList.forEach((client) => {
+      const matchingActions = finalActionsArray.filter((action) =>
+        action.code?.includes(client.id)
+      );
+      if (
+        matchingActions.length > 0 &&
+        req.auth.permissions.includes("read:triggers")
+      ) {
+        matchingActions.forEach((action) => {
+          client.actions.push({
+            id: action.id,
+            name: action.name,
+            trigger: action.supported_triggers[0].id,
           });
-        }
-        if (
-          matchingActions.length > 0 &&
-          !req.auth.permissions.includes("read:triggers")
-        ) {
-          matchingActions.forEach((action) => {
-            client.actions.push({
-              id: action.id,
-              name: action.name,
-            });
+        });
+      }
+      if (
+        matchingActions.length > 0 &&
+        !req.auth.permissions.includes("read:triggers")
+      ) {
+        matchingActions.forEach((action) => {
+          client.actions.push({
+            id: action.id,
+            name: action.name,
           });
-        } else {
-          client.actions.push(noActionMessage);
-        }
-      });
-    };
+        });
+      } else {
+        client.actions.push(noActionMessage);
+      }
+    });
+  };
 
-    match(getAllClients, getAllActions);
+  match(getAllClients, getAllActions);
 
-    const removeLast = (array) => {
-      array.length--;
-      return array;
-    };
+  const removeLast = (array) => {
+    array.length--;
+    return array;
+  };
 
-    removeLast(finalList);
+  removeLast(finalList);
 
-    res.json(finalList);
+  res.json(finalList);
+});
 
-    // res.json({
-    //   message:
-    //     "Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this.",
-    // });
-  }
+// app.get(
+//   "/api/private-scoped",
+//   checkJwt,
+//   // requiredScopes("read:actions read:clients read:triggers"),
+//   async (req, res) => {
+//     let options = {
+//       method: "POST",
+//       url: `${issuerBaseUrl}/oauth/token`,
+//       headers: { "content-type": "application/json" },
+//       data: {
+//         grant_type: "client_credentials",
+//         client_id: clientID,
+//         client_secret: clientSecret,
+//         audience: managementAPIaudience,
+//       },
+//     };
+
+//     const managementAPIToken = await axios.request(options).then((res) => {
+//       return `Bearer ${res.data.access_token}`;
+//     });
+
+//     const getAllActions = await axios
+//       .get(`${managementAPIaudience}actions/actions`, {
+//         headers: { authorization: managementAPIToken },
+//       })
+//       .then((res) => {
+//         return res.data;
+//       });
+
+//     const getAllClients = await axios
+//       .get(`${managementAPIaudience}clients`, {
+//         headers: { authorization: managementAPIToken },
+//       })
+//       .then((res) => {
+//         return res.data;
+//       });
+
+//     let finalList = [];
+//     let noActionMessage = {
+//       message: "This application has no associated actions.",
+//     };
+
+//     const match = (clients, actions) => {
+//       clients.forEach((client) => {
+//         const oneSingleClient = {
+//           name: client.name,
+//           id: client.client_id,
+//           actions: [],
+//         };
+//         finalList.push(oneSingleClient);
+//       });
+
+//       const actionsArray = Object.values(actions);
+
+//       const finalActionsArray = actionsArray.flat();
+
+//       finalList.forEach((client) => {
+//         const matchingActions = finalActionsArray.filter((action) =>
+//           action.code?.includes(client.id)
+//         );
+//         if (
+//           matchingActions.length > 0 &&
+//           req.auth.permissions.includes("read:triggers")
+//         ) {
+//           matchingActions.forEach((action) => {
+//             client.actions.push({
+//               id: action.id,
+//               name: action.name,
+//               trigger: action.supported_triggers[0].id,
+//             });
+//           });
+//         }
+//         if (
+//           matchingActions.length > 0 &&
+//           !req.auth.permissions.includes("read:triggers")
+//         ) {
+//           matchingActions.forEach((action) => {
+//             client.actions.push({
+//               id: action.id,
+//               name: action.name,
+//             });
+//           });
+//         } else {
+//           client.actions.push(noActionMessage);
+//         }
+//       });
+//     };
+
+//     match(getAllClients, getAllActions);
+
+//     const removeLast = (array) => {
+//       array.length--;
+//       return array;
+//     };
+
+//     removeLast(finalList);
+
+//     res.json(finalList);
+
+//     // res.json({
+//     //   message:
+//     //     "Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this.",
+//     // });
+//   }
 );
 
 app.use(function (err, req, res, next) {
