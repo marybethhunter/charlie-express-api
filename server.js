@@ -32,105 +32,105 @@ const checkJwt = jwt({
   algorithms: ["RS256"],
 });
 
-app.get("/api/public", async (req, res) => {
-  let options = {
-    method: "POST",
-    url: `${issuerBaseUrl}/oauth/token`,
-    headers: { "content-type": "application/json" },
-    data: {
-      grant_type: "client_credentials",
-      client_id: clientID,
-      client_secret: clientSecret,
-      audience: managementAPIaudience,
-    },
-  };
+app.get("/api/public", function (req, res) {
+  // let options = {
+  //   method: "POST",
+  //   url: `${issuerBaseUrl}/oauth/token`,
+  //   headers: { "content-type": "application/json" },
+  //   data: {
+  //     grant_type: "client_credentials",
+  //     client_id: clientID,
+  //     client_secret: clientSecret,
+  //     audience: managementAPIaudience,
+  //   },
+  // };
 
-  const managementAPIToken = await axios.request(options).then((res) => {
-    return `Bearer ${res.data.access_token}`;
-  });
-
-  const getAllActions = await axios
-    .get(`${managementAPIaudience}actions/actions`, {
-      headers: { authorization: managementAPIToken },
-    })
-    .then((res) => {
-      return res.data;
-    });
-
-  const getAllClients = await axios
-    .get(`${managementAPIaudience}clients`, {
-      headers: { authorization: managementAPIToken },
-    })
-    .then((res) => {
-      return res.data;
-    });
-
-  let finalList = [];
-  let noActionMessage = {
-    message: "This application has no associated actions.",
-  };
-
-  const match = (clients, actions) => {
-    clients.forEach((client) => {
-      const oneSingleClient = {
-        name: client.name,
-        id: client.client_id,
-        actions: [],
-      };
-      finalList.push(oneSingleClient);
-    });
-
-    const actionsArray = Object.values(actions);
-
-    const finalActionsArray = actionsArray.flat();
-
-    finalList.forEach((client) => {
-      const matchingActions = finalActionsArray.filter((action) =>
-        action.code?.includes(client.id)
-      );
-      if (
-        matchingActions.length > 0 &&
-        req.auth.permissions.includes("read:triggers")
-      ) {
-        matchingActions.forEach((action) => {
-          client.actions.push({
-            id: action.id,
-            name: action.name,
-            trigger: action.supported_triggers[0].id,
-          });
-        });
-      }
-      if (
-        matchingActions.length > 0 &&
-        !req.auth.permissions.includes("read:triggers")
-      ) {
-        matchingActions.forEach((action) => {
-          client.actions.push({
-            id: action.id,
-            name: action.name,
-          });
-        });
-      } else {
-        client.actions.push(noActionMessage);
-      }
-    });
-  };
-
-  match(getAllClients, getAllActions);
-
-  const removeLast = (array) => {
-    array.length--;
-    return array;
-  };
-
-  removeLast(finalList);
-
-  res.json(finalList);
-
-  // res.json({
-  //   message:
-  //     "Hello from a public endpoint! You don't need to be authenticated to see this.",
+  // const managementAPIToken = await axios.request(options).then((res) => {
+  //   return `Bearer ${res.data.access_token}`;
   // });
+
+  // const getAllActions = await axios
+  //   .get(`${managementAPIaudience}actions/actions`, {
+  //     headers: { authorization: managementAPIToken },
+  //   })
+  //   .then((res) => {
+  //     return res.data;
+  //   });
+
+  // const getAllClients = await axios
+  //   .get(`${managementAPIaudience}clients`, {
+  //     headers: { authorization: managementAPIToken },
+  //   })
+  //   .then((res) => {
+  //     return res.data;
+  //   });
+
+  // let finalList = [];
+  // let noActionMessage = {
+  //   message: "This application has no associated actions.",
+  // };
+
+  // const match = (clients, actions) => {
+  //   clients.forEach((client) => {
+  //     const oneSingleClient = {
+  //       name: client.name,
+  //       id: client.client_id,
+  //       actions: [],
+  //     };
+  //     finalList.push(oneSingleClient);
+  //   });
+
+  //   const actionsArray = Object.values(actions);
+
+  //   const finalActionsArray = actionsArray.flat();
+
+  //   finalList.forEach((client) => {
+  //     const matchingActions = finalActionsArray.filter((action) =>
+  //       action.code?.includes(client.id)
+  //     );
+  //     if (
+  //       matchingActions.length > 0 &&
+  //       req.auth.permissions.includes("read:triggers")
+  //     ) {
+  //       matchingActions.forEach((action) => {
+  //         client.actions.push({
+  //           id: action.id,
+  //           name: action.name,
+  //           trigger: action.supported_triggers[0].id,
+  //         });
+  //       });
+  //     }
+  //     if (
+  //       matchingActions.length > 0 &&
+  //       !req.auth.permissions.includes("read:triggers")
+  //     ) {
+  //       matchingActions.forEach((action) => {
+  //         client.actions.push({
+  //           id: action.id,
+  //           name: action.name,
+  //         });
+  //       });
+  //     } else {
+  //       client.actions.push(noActionMessage);
+  //     }
+  //   });
+  // };
+
+  // match(getAllClients, getAllActions);
+
+  // const removeLast = (array) => {
+  //   array.length--;
+  //   return array;
+  // };
+
+  // removeLast(finalList);
+
+  // res.json(finalList);
+
+  res.json({
+    message:
+      "Hello from a public endpoint! You don't need to be authenticated to see this.",
+  });
 });
 
 app.get("/api/private", checkJwt, async (req, res) => {
